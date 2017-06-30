@@ -1,0 +1,13 @@
+{
+  "name": "liri-node-app.package",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YETC7/liri-node-app.git"
+  },
+  "author": "Eric Tyler Cooper (YETC7)",
+  "license": "ISC",
+  "dependencies": {
+    "node-spotify-api": "^1.0.5"
+  }
+}
