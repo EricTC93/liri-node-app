@@ -16,7 +16,7 @@ switch (command) {
 		break;
 
 	case "movie-this":
-		
+		movieThis();
 		break;
 
 	case "do-what-it-says":
@@ -31,7 +31,7 @@ function spotifySong() {
 	var title = process.argv[3];
 
 	if(!title) {
-		title = "The Sign";
+		title = "The-Sign";
 	}
 
 	var Spotify = require("node-spotify-api");
@@ -77,4 +77,43 @@ function spotifySong() {
 		}
 
 	});
+}
+
+function movieThis() {
+	var title = process.argv[3];
+
+	if(!title) {
+		title = "Mr.-Nobody";
+	}
+
+	var queryURL = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&r=json&apikey=40e9cece";
+
+	var request = require("request");
+	request(queryURL,function (error, response, body) {
+		movieObj = JSON.parse(body);
+
+		console.log(movieObj.Title);
+
+		console.log(movieObj.Year);
+
+		console.log(movieObj.imdbRating);
+
+		var ratings = movieObj.Ratings
+		for (var key in ratings) {
+			if (ratings[key].Source === "Rotten Tomatoes") {
+				console.log(ratings[key].Value);
+			}
+		}
+		// console.log(movieObj.Ratings);
+
+		console.log(movieObj.Country);
+
+		console.log(movieObj.Language);
+
+		console.log(movieObj.Plot);
+
+		console.log(movieObj.Actors);
+
+	});
+
 }
