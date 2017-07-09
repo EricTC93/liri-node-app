@@ -2,37 +2,80 @@ var twitter = require("./key.js");
 
 // console.log(twitter);
 
-var command = process.argv[2];
+var nodeArr = process.argv;
+var command = nodeArr[2];
+var title = nodeArr[3];
+
+// var inputLine = {
+// 	command:nodeArr[2];
+// 	value:nodeArr[3];
+// }
+
+// var nodeString = (nodeArr.splice(2)).join(",");
+var fs = require("fs");
 
 console.log(" ");
 
-switch (command) {
-	case "my-tweets":
-		
-		break;
+runCommand();
 
-	case "spotify-this-song":
-		spotifySong();
-		break;
+function runCommand () {
+	switch (command) {
+		case "my-tweets":
+			
+			break;
 
-	case "movie-this":
-		movieThis();
-		break;
+		case "spotify-this-song":
+			spotifySong();
+			break;
 
-	case "do-what-it-says":
-		
-		break;
+		case "movie-this":
+			movieThis();
+			break;
 
-	default:
-		console.log("There was an error");
+		case "do-what-it-says":
+			randomCommand();
+			break;
+
+		default:
+			console.log("There was an error");
+	}	
 }
 
+// switch (command) {
+// 	case "my-tweets":
+		
+// 		break;
+
+// 	case "spotify-this-song":
+// 		spotifySong();
+// 		break;
+
+// 	case "movie-this":
+// 		movieThis();
+// 		break;
+
+// 	case "do-what-it-says":
+// 		// randomCommand();
+// 		break;
+
+// 	default:
+// 		console.log("There was an error");
+// }
+
 function spotifySong() {
-	var title = process.argv[3];
+	// var title = nodeArr[3];
 
 	if(!title) {
 		title = "The-Sign";
 	}
+
+	var textString = "," + command + "," + title;
+
+	fs.appendFile("random.txt", textString , function(err) {
+		if (err) {
+			return console.log(err);
+		}
+	});
 
 	var Spotify = require("node-spotify-api");
 
@@ -80,11 +123,19 @@ function spotifySong() {
 }
 
 function movieThis() {
-	var title = process.argv[3];
+	// var title = nodeArr[3];
 
 	if(!title) {
 		title = "Mr.-Nobody";
 	}
+
+	var textString = "," + command + "," + title;
+
+	fs.appendFile("random.txt", textString , function(err) {
+		if (err) {
+			return console.log(err);
+		}
+	});
 
 	var queryURL = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&r=json&apikey=40e9cece";
 
@@ -116,4 +167,41 @@ function movieThis() {
 
 	});
 
+}
+
+function randomCommand() {
+	fs.readFile("random.txt","utf8",function(err,data) {
+		if (err) {
+			return console.log(err);
+		}
+
+		console.log(data);
+		dataArr = data.split(",");
+		console.log(dataArr);
+
+		var prevCommands = [];
+		for(var i = 0; i<dataArr.length; i++) {
+			prevCommands.push({
+				command: dataArr[i],
+				value: dataArr[i+1]
+			})
+			i++;
+		}
+		console.log(prevCommands);
+
+		var rand = Math.floor(Math.random()*prevCommands.length);
+
+		if(rand%2 === 1) {
+			rand--;
+		}
+
+		command = prevCommands[rand].command;
+		title = prevCommands[rand].value;
+
+		console.log(command);
+		console.log(title);
+
+		runCommand();
+
+	});
 }
