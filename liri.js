@@ -1,6 +1,8 @@
-var twitter = require("./key.js");
+var keyJS = require("./key.js");
 
-// console.log(twitter);
+var twitterKeys = keyJS.twitterKeys;
+
+// console.log(twitterKeys);
 
 var nodeArr = process.argv;
 var command = nodeArr[2];
@@ -21,7 +23,7 @@ runCommand();
 function runCommand () {
 	switch (command) {
 		case "my-tweets":
-			
+			myTweets();
 			break;
 
 		case "spotify-this-song":
@@ -61,6 +63,47 @@ function runCommand () {
 // 	default:
 // 		console.log("There was an error");
 // }
+
+function myTweets() {
+	title = "tweet-tweet";
+
+	// var textString = "," + command + "," + title;
+
+	// fs.appendFile("random.txt", textString , function(err) {
+	// 	if (err) {
+	// 		return console.log(err);
+	// 	}
+	// });
+
+	var Twitter = require('twitter');
+	 
+	// var client = new Twitter({
+	//   consumer_key: twitterKeys.consumer_key,
+	//   consumer_secret: twitterKeys.consumer_secret,
+	//   access_token_key: twitterKeys.access_token_key,
+	//   access_token_secret: twitterKeys.access_token_secret
+	// });
+
+	var client = new Twitter(twitterKeys);
+
+	var params = {
+		q: 'DreadDryBones', 
+		count: 20
+	};
+
+	// var params = {
+	// 	q: 'rtx2017', 
+	// 	count: 20
+	// };
+
+	client.get('search/tweets', params, function(error, tweets, response) {
+		// console.dir(tweets);
+		for (var i = 0; i < tweets.statuses.length; i++) {
+			console.log(tweets.statuses[i].text + "\n");
+		}
+	});	
+
+}
 
 function spotifySong() {
 	// var title = nodeArr[3];
