@@ -43,39 +43,19 @@ function runCommand () {
 	}	
 }
 
-// switch (command) {
-// 	case "my-tweets":
-		
-// 		break;
-
-// 	case "spotify-this-song":
-// 		spotifySong();
-// 		break;
-
-// 	case "movie-this":
-// 		movieThis();
-// 		break;
-
-// 	case "do-what-it-says":
-// 		// randomCommand();
-// 		break;
-
-// 	default:
-// 		console.log("There was an error");
-// }
-
 function myTweets() {
 	title = "tweet-tweet";
 
-	// var textString = "," + command + "," + title;
+	var textString = "," + command + "," + title;
 
-	// fs.appendFile("random.txt", textString , function(err) {
-	// 	if (err) {
-	// 		return console.log(err);
-	// 	}
-	// });
+	fs.appendFile("random.txt", textString , function(err) {
+		if (err) {
+			return console.log(err);
+		}
+	});
 
 	var Twitter = require('twitter');
+	var Moment = require("moment");
 	 
 	// var client = new Twitter({
 	//   consumer_key: twitterKeys.consumer_key,
@@ -98,7 +78,15 @@ function myTweets() {
 
 	client.get('search/tweets', params, function(error, tweets, response) {
 		// console.dir(tweets);
+
 		for (var i = 0; i < tweets.statuses.length; i++) {
+
+			var timeStr = tweets.statuses[i].created_at;
+
+			// console.log(timeStr);
+
+			console.log(Moment(timeStr,"ddd MMM DD HH:mm:ss Z YYYY").format("ddd. MMM DD, YYYY @ hh:mma."));
+
 			console.log(tweets.statuses[i].text + "\n");
 		}
 	});	
@@ -218,9 +206,9 @@ function randomCommand() {
 			return console.log(err);
 		}
 
-		console.log(data);
+		// console.log(data);
 		dataArr = data.split(",");
-		console.log(dataArr);
+		// console.log(dataArr);
 
 		var prevCommands = [];
 		for(var i = 0; i<dataArr.length; i++) {
@@ -230,19 +218,14 @@ function randomCommand() {
 			})
 			i++;
 		}
-		console.log(prevCommands);
+		// console.log(prevCommands);
 
 		var rand = Math.floor(Math.random()*prevCommands.length);
-
-		if(rand%2 === 1) {
-			rand--;
-		}
 
 		command = prevCommands[rand].command;
 		title = prevCommands[rand].value;
 
-		console.log(command);
-		console.log(title);
+		console.log(command + " " + title + "\n");
 
 		runCommand();
 
