@@ -1,30 +1,33 @@
 var Moment = require("moment");
+var fs = require("fs");
 var keyJS = require("./key.js");
-
 var twitterKeys = keyJS.twitterKeys;
-
-// console.log(twitterKeys);
 
 var nodeArr = process.argv;
 var command = nodeArr[2];
 var title = nodeArr[3];
 
-var logString = "---------------" + Moment().format("ddd. MMM DD, YYYY @ hh:mma.") + "---------------\n";
+// Starts log string that will be appended to log.txt
+var logString = "---------------" + Moment().format("ddd. MMM DD, YYYY @ hh:mma.") + "---------------\n\n";
 
-// var inputLine = {
-// 	command:nodeArr[2];
-// 	value:nodeArr[3];
-// }
-
-// var nodeString = (nodeArr.splice(2)).join(",");
-var fs = require("fs");
-
-console.log("");
-
+// Saves command to random.txt
 if (command !== "do-what-it-says") {
 
+	// Default titles
 	if (command === "my-tweets") {
 		title = "tweet-tweet";
+	}
+
+	else if (command === "spotify-this-song") {
+		if(!title) {
+			title = "The-Sign";
+		}
+	}
+
+	else if (command === "movie-this") {
+		if(!title) {
+			title = "Mr.-Nobody";
+		}
 	}
 
 	var textString = "," + command + "," + title;
@@ -36,8 +39,14 @@ if (command !== "do-what-it-says") {
 	});
 }
 
+else {
+	logString+=(command + "\n");
+}
+
+console.log("");
 runCommand();
 
+// Chooses which command to run from user input
 function runCommand () {
 	switch (command) {
 		case "my-tweets":
@@ -61,48 +70,23 @@ function runCommand () {
 	}	
 }
 
+// List tweets from a dummy twitter account
 function myTweets() {
-	title = "tweet-tweet";
 
 	logString+=(command + " " + title + "\n\n");
 
-	// var textString = "," + command + "," + title;
-
-	// fs.appendFile("random.txt", textString , function(err) {
-	// 	if (err) {
-	// 		return console.log(err);
-	// 	}
-	// });
-
 	var Twitter = require('twitter');
-	 
-	// var client = new Twitter({
-	//   consumer_key: twitterKeys.consumer_key,
-	//   consumer_secret: twitterKeys.consumer_secret,
-	//   access_token_key: twitterKeys.access_token_key,
-	//   access_token_secret: twitterKeys.access_token_secret
-	// });
-
 	var client = new Twitter(twitterKeys);
 
-	// var params = {
-	// 	screen_name: 'DreadDryBones', 
-	// 	count: 20
-	// };
-
+	// Sets parameters for the twitter search
 	var params = {
 		q: 'DreadDryBones', 
 		count: 20
 	};
 
-	// var params = {
-	// 	q: 'rtx2017', 
-	// 	count: 20
-	// };
-
 	client.get('search/tweets', params, function(error, tweets, response) {
-		// console.dir(tweets.statuses[0].user.screen_name);
 
+		// List information for each tweet found
 		for (var i = 0; i < tweets.statuses.length; i++) {
 
 			var timeStr = tweets.statuses[i].created_at;
@@ -118,35 +102,16 @@ function myTweets() {
 			console.log(tweets.statuses[i].text + "\n");
 		}
 
-		// console.log("logString: " + logString);
+		appendLog();
 
-		logString+="---------------------------------------------\n\n";
-
-		fs.appendFile("log.txt",logString,function(err) {
-			if(err) {
-				return console.log(err);
-			}
-		});
 	});	
 
 }
 
+// List songs based on a song title
 function spotifySong() {
-	// var title = nodeArr[3];
-
-	if(!title) {
-		title = "The-Sign";
-	}
 
 	logString+=(command + " " + title + "\n\n");
-
-	// var textString = "," + command + "," + title;
-
-	// fs.appendFile("random.txt", textString , function(err) {
-	// 	if (err) {
-	// 		return console.log(err);
-	// 	}
-	// });
 
 	var Spotify = require("node-spotify-api");
 
@@ -155,12 +120,11 @@ function spotifySong() {
 	  secret: "e5d69b6a90b84700a8439e3c1685c0a6"
 	});
 	 
+	 // Retrieves songs and list the data for each song
 	spotify.search({ type: 'track', query: title, limit: 5 }, function(err, data) {
 		if (err) {
 	    	return console.log('Error occurred: ' + err);
 		}
-	 
-		// console.log(data);
 
 		var songsData = data.tracks.items;
 
@@ -192,36 +156,19 @@ function spotifySong() {
 			console.log(album+"\n");
 		}
 
-		logString+="---------------------------------------------\n\n";
-
-		fs.appendFile("log.txt",logString,function(err) {
-			if(err) {
-				return console.log(err);
-			}
-		});
+		appendLog();
 
 	});
 }
 
+// Gets a movie based on the title
 function movieThis() {
-	// var title = nodeArr[3];
-
-	if(!title) {
-		title = "Mr.-Nobody";
-	}
 
 	logString+=(command + " " + title + "\n\n");
 
-	// var textString = "," + command + "," + title;
-
-	// fs.appendFile("random.txt", textString , function(err) {
-	// 	if (err) {
-	// 		return console.log(err);
-	// 	}
-	// });
-
 	var queryURL = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&r=json&apikey=40e9cece";
 
+	// Retrieves the data for the movie
 	var request = require("request");
 	request(queryURL,function (error, response, body) {
 		movieObj = JSON.parse(body);
@@ -242,7 +189,6 @@ function movieThis() {
 				console.log("Rotten Tomatoes: " + ratings[key].Value);
 			}
 		}
-		// console.log("" + movieObj.Ratings);
 
 		logString+=("Country: " + movieObj.Country + "\n");
 		console.log("Country: " + movieObj.Country);
@@ -253,30 +199,23 @@ function movieThis() {
 		logString+=("Actors: " + movieObj.Actors + "\n");
 		console.log("Actors: " + movieObj.Actors);
 
-		logString+=(movieObj.Plot + "\n");
+		logString+=(movieObj.Plot + "\n\n");
 		console.log(movieObj.Plot);
 
-		logString+="---------------------------------------------\n\n";
-
-		fs.appendFile("log.txt",logString,function(err) {
-			if(err) {
-				return console.log(err);
-			}
-		});
+		appendLog();
 
 	});
 
 }
 
+// Runs random command based on past commands saved in random.txt
 function randomCommand() {
 	fs.readFile("random.txt","utf8",function(err,data) {
 		if (err) {
 			return console.log(err);
 		}
 
-		// console.log(data);
 		dataArr = data.split(",");
-		// console.log(dataArr);
 
 		var prevCommands = [];
 		for(var i = 0; i<dataArr.length; i++) {
@@ -286,7 +225,6 @@ function randomCommand() {
 			})
 			i++;
 		}
-		// console.log(prevCommands);
 
 		var rand = Math.floor(Math.random()*prevCommands.length);
 
@@ -297,5 +235,17 @@ function randomCommand() {
 
 		runCommand();
 
+	});
+}
+
+// Adds information to the log after the data retrival
+function appendLog() {
+
+	logString+="---------------------------------------------\n\n";
+
+	fs.appendFile("log.txt",logString,function(err) {
+		if(err) {
+			return console.log(err);
+		}
 	});
 }
