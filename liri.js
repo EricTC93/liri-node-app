@@ -1,3 +1,4 @@
+var Moment = require("moment");
 var keyJS = require("./key.js");
 
 var twitterKeys = keyJS.twitterKeys;
@@ -8,6 +9,8 @@ var nodeArr = process.argv;
 var command = nodeArr[2];
 var title = nodeArr[3];
 
+var logString = "---------------" + Moment().format("ddd. MMM DD, YYYY @ hh:mma.") + "---------------\n";
+
 // var inputLine = {
 // 	command:nodeArr[2];
 // 	value:nodeArr[3];
@@ -16,7 +19,22 @@ var title = nodeArr[3];
 // var nodeString = (nodeArr.splice(2)).join(",");
 var fs = require("fs");
 
-console.log(" ");
+console.log("");
+
+if (command !== "do-what-it-says") {
+
+	if (command === "my-tweets") {
+		title = "tweet-tweet";
+	}
+
+	var textString = "," + command + "," + title;
+
+		fs.appendFile("random.txt", textString , function(err) {
+			if (err) {
+				return console.log(err);
+		}
+	});
+}
 
 runCommand();
 
@@ -46,16 +64,17 @@ function runCommand () {
 function myTweets() {
 	title = "tweet-tweet";
 
-	var textString = "," + command + "," + title;
+	logString+=(command + " " + title + "\n\n");
 
-	fs.appendFile("random.txt", textString , function(err) {
-		if (err) {
-			return console.log(err);
-		}
-	});
+	// var textString = "," + command + "," + title;
+
+	// fs.appendFile("random.txt", textString , function(err) {
+	// 	if (err) {
+	// 		return console.log(err);
+	// 	}
+	// });
 
 	var Twitter = require('twitter');
-	var Moment = require("moment");
 	 
 	// var client = new Twitter({
 	//   consumer_key: twitterKeys.consumer_key,
@@ -65,6 +84,11 @@ function myTweets() {
 	// });
 
 	var client = new Twitter(twitterKeys);
+
+	// var params = {
+	// 	screen_name: 'DreadDryBones', 
+	// 	count: 20
+	// };
 
 	var params = {
 		q: 'DreadDryBones', 
@@ -77,18 +101,32 @@ function myTweets() {
 	// };
 
 	client.get('search/tweets', params, function(error, tweets, response) {
-		// console.dir(tweets);
+		// console.dir(tweets.statuses[0].user.screen_name);
 
 		for (var i = 0; i < tweets.statuses.length; i++) {
 
 			var timeStr = tweets.statuses[i].created_at;
 
-			// console.log(timeStr);
+			timeStr = Moment(timeStr,"ddd MMM DD HH:mm:ss Z YYYY").format("ddd. MMM DD, YYYY @ hh:mma ");
 
-			console.log(Moment(timeStr,"ddd MMM DD HH:mm:ss Z YYYY").format("ddd. MMM DD, YYYY @ hh:mma."));
+			var screenName = tweets.statuses[0].user.screen_name;
 
+			logString+=(timeStr + "by @" + screenName + "\n");
+			console.log(timeStr + "by @" + screenName);
+
+			logString+=(tweets.statuses[i].text + "\n\n");
 			console.log(tweets.statuses[i].text + "\n");
 		}
+
+		// console.log("logString: " + logString);
+
+		logString+="---------------------------------------------\n\n";
+
+		fs.appendFile("log.txt",logString,function(err) {
+			if(err) {
+				return console.log(err);
+			}
+		});
 	});	
 
 }
@@ -100,13 +138,15 @@ function spotifySong() {
 		title = "The-Sign";
 	}
 
-	var textString = "," + command + "," + title;
+	logString+=(command + " " + title + "\n\n");
 
-	fs.appendFile("random.txt", textString , function(err) {
-		if (err) {
-			return console.log(err);
-		}
-	});
+	// var textString = "," + command + "," + title;
+
+	// fs.appendFile("random.txt", textString , function(err) {
+	// 	if (err) {
+	// 		return console.log(err);
+	// 	}
+	// });
 
 	var Spotify = require("node-spotify-api");
 
@@ -133,22 +173,32 @@ function spotifySong() {
 				artistsString+=(artists[key1].name + " ");
 			}
 
+			logString+=(artistsString+"\n");
 			console.log(artistsString);
 
 			var song = songsData[key].name;
 
+			logString+=(song+"\n");
 			console.log(song);
 
 			var previewURL = songsData[key].preview_url;
 
+			logString+=(previewURL+"\n");
 			console.log(previewURL);
 
 			var album = songsData[key].album.name;
 
-			console.log(album);
-
-			console.log(" ");
+			logString+=(album+"\n\n");
+			console.log(album+"\n");
 		}
+
+		logString+="---------------------------------------------\n\n";
+
+		fs.appendFile("log.txt",logString,function(err) {
+			if(err) {
+				return console.log(err);
+			}
+		});
 
 	});
 }
@@ -160,13 +210,15 @@ function movieThis() {
 		title = "Mr.-Nobody";
 	}
 
-	var textString = "," + command + "," + title;
+	logString+=(command + " " + title + "\n\n");
 
-	fs.appendFile("random.txt", textString , function(err) {
-		if (err) {
-			return console.log(err);
-		}
-	});
+	// var textString = "," + command + "," + title;
+
+	// fs.appendFile("random.txt", textString , function(err) {
+	// 	if (err) {
+	// 		return console.log(err);
+	// 	}
+	// });
 
 	var queryURL = "http://www.omdbapi.com/?t=" + title + "&y=&plot=short&r=json&apikey=40e9cece";
 
@@ -174,27 +226,43 @@ function movieThis() {
 	request(queryURL,function (error, response, body) {
 		movieObj = JSON.parse(body);
 
-		console.log(movieObj.Title);
+		logString+=("Title: " + movieObj.Title + "\n");
+		console.log("Title: " + movieObj.Title);
 
-		console.log(movieObj.Year);
+		logString+=("Year: " + movieObj.Year + "\n");
+		console.log("Year: " + movieObj.Year);
 
-		console.log(movieObj.imdbRating);
+		logString+=("IMDB: " + movieObj.imdbRating + "\n");
+		console.log("IMDB: " + movieObj.imdbRating);
 
 		var ratings = movieObj.Ratings
 		for (var key in ratings) {
 			if (ratings[key].Source === "Rotten Tomatoes") {
-				console.log(ratings[key].Value);
+				logString+=("Rotten Tomatoes: " + ratings[key].Value + "\n");
+				console.log("Rotten Tomatoes: " + ratings[key].Value);
 			}
 		}
-		// console.log(movieObj.Ratings);
+		// console.log("" + movieObj.Ratings);
 
-		console.log(movieObj.Country);
+		logString+=("Country: " + movieObj.Country + "\n");
+		console.log("Country: " + movieObj.Country);
 
-		console.log(movieObj.Language);
+		logString+=("Language: " + movieObj.Language + "\n");
+		console.log("Language: " + movieObj.Language);
 
+		logString+=("Actors: " + movieObj.Actors + "\n");
+		console.log("Actors: " + movieObj.Actors);
+
+		logString+=(movieObj.Plot + "\n");
 		console.log(movieObj.Plot);
 
-		console.log(movieObj.Actors);
+		logString+="---------------------------------------------\n\n";
+
+		fs.appendFile("log.txt",logString,function(err) {
+			if(err) {
+				return console.log(err);
+			}
+		});
 
 	});
 
